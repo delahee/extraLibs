@@ -115,10 +115,10 @@ class SpriteAgent extends Agent {
 #end
 
 class AgentList {
-	var repo : hxd.Stack<Agent>;
+	var repo : Stack<Agent>;
 	
 	public inline function new() 
-		repo = new hxd.Stack<Agent>();
+		repo = new Stack<Agent>();
 	
 	public
 	inline 

@@ -1,5 +1,3 @@
-package hxd;
-
 
 private class StackIterator<T> {
 	var b : Array<T>;
@@ -178,25 +176,5 @@ class Stack<T>  {
 			arr[ a ] = arr[ b ];
 			arr[ b ] = temp;
 		}
-	}
-}
-
-class StackTest {
-	public static function test() {
-		var a : hxd.Stack<Null<Int>> = new hxd.Stack<Null<Int>>(); 
-		a.fill([1, 2, 3, 4]);
-		a.removeOrdered(3);
-		if ( a.get(0) != 1 || a.get(2) != 4) throw "assert";
-		trace(a);
-		
-		var a : hxd.Stack<Null<Int>> = new hxd.Stack<Null<Int>>() 
-		.fill([1, 2, 3, 4]);
-		
-		a.pushFront( 0 ); 
-		if ( a.get(0) != 0 || a.get(2) != 2) throw "assert";
-		
-		var a : hxd.Stack<Null<Int>> = new hxd.Stack<Null<Int>>();
-		a.pushFront( 66 ); 
-		trace(a);
 	}
 }
