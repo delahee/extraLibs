@@ -1,3 +1,6 @@
+#if (flash&&(d1||d2))
+using mt.gx.as.LibEx;
+#end
 
 class Agent {
 	
@@ -114,6 +117,35 @@ class SpriteAgent extends Agent {
 }
 #end
 
+#if (flash&&(d1||d2))
+class FSpriteAgent extends Agent {
+	var root : flash.display.Sprite; //root is disposable
+	var visible(get, set):Bool; 
+	
+	inline function get_visible():Bool	 	return root.visible;
+	inline function set_visible(v):Bool 	return root.visible = v;
+	
+	public inline function toFront() 			root.toFront();
+	public inline function toBack() 			root.toBack();
+	public inline function getChildByName(n) 	return root.getChildByName(n);
+	
+	public inline function getRoot() return root;
+	
+	public function new( ?p:flash.display.Sprite ) {
+		super();
+		root = new flash.display.Sprite();
+		if ( p != null) p.addChild(root);
+	}
+	
+	public inline function addChild(c) 			root.addChild(c);
+	
+	public override function dispose() { //end of the story 
+		super.dispose();
+		root = null;
+	}
+}
+#end
+
 class AgentList {
 	var repo : Stack<Agent>;
 	
@@ -172,17 +204,20 @@ class SpinAgent extends AnonAgent {
 			spin = 0;
 		}
 	}
-	
 }
 
 class TimeSpinAgent extends AnonAgent {
-	var spinMax = 0.0;
-	var spin = 0.0;
+	public var spinMax = 0.0;
+	public var spin = 0.0;
 	
 	public function new( spin_ms:Float,cbk:Float->Void,?dl:AgentList) {
 		super(cbk);
 		spinMax = spin_ms;
 		if(dl!=null) dl.add( this );
+	}
+	
+	public function unsync() {
+		spin = Math.random() * spinMax;
 	}
 	
 	public function trigger(dt) {

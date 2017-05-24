@@ -14,11 +14,13 @@ typedef VideoConf = {
 	smoothing:Bool, 
 	autostart:Bool, 
 	enableSkip:Bool,
-	?forceSoftware:Bool
+	?forceSoftware:Bool,
+	?bufferTimeS:Float,
+	?noBuffer:Bool
 };
 class Video extends Agent {
 
-	var url 	: String;
+	public var url 	: String;
 	var nc 		: flash.net.NetConnection = null;
 	var stream 	: flash.net.NetStream = null;
 	var sv 		: flash.media.StageVideo = null;
@@ -27,13 +29,20 @@ class Video extends Agent {
 	public var onFinished : Signal = new Signal();
 	public var onDispose : Signal = new Signal();
 	public var onVideoCanStart : Signal = new Signal();
+	public var onError : Signal = new Signal();
 	
 	public var conf : VideoConf;
+	public var volume(default,set):Float = 1.0;
 	var rect : flash.geom.Rectangle; function get_rect() return conf.rect;
 	
 	var sub : AgentList = new AgentList();
 	var isStageVideo = false;
 	var root : flash.display.Sprite;
+	
+	public static var instances = 0;
+
+	var requestedParent : flash.display.DisplayObjectContainer;
+	var requestedParentIndex = 0;
 	
 	public function new(url:String, conf:VideoConf) {
 		super();
@@ -57,6 +66,14 @@ class Video extends Agent {
 		var useClassical = false;
 		if ( conf.forceSoftware == true )
 			useClassical = true;
+			
+		if( conf.noBuffer != true ){
+			if ( conf.bufferTimeS != null)
+				ns.bufferTime = conf.bufferTimeS;
+			else 
+				ns.bufferTime = 2.0;
+		}
+				
 		if ( useClassical || stage.stageVideos.length == 0) {
 			var v = vd = new flash.media.Video( Math.round(conf.rect.width), Math.round(conf.rect.height));
 			v.attachNetStream( ns );
@@ -72,7 +89,6 @@ class Video extends Agent {
 				sv.addEventListener(StageVideoEvent.RENDER_STATUS_UNAVAILABLE, stageVideoStateChange);
 				sv.viewPort = new flash.geom.Rectangle( conf.rect.x, conf.rect.y, conf.rect.width, conf.rect.height);
 			}
-			ns.bufferTime = 2.0;
 			sv.attachNetStream( ns );
 			onDispose.addOnce(function() {
 				var lsv : flash.media.StageVideo = cast stage.stageVideos[0];
@@ -105,14 +121,50 @@ class Video extends Agent {
 				onVideoCanStart.trigger();
 			}, 100,sub);
 		}
+		instances++;
 		
+		events();
 		
 	}
+	
+	function events() {
+		flash.Lib.current.addEventListener( flash.events.Event.RESIZE, onResize );
+		onDispose.add( function() flash.Lib.current.removeEventListener( flash.events.Event.RESIZE, onResize ) );
+	}
+	
+	function onResize(e) {
+		
+	}
+	
+	public function attachTo( p : flash.display.DisplayObjectContainer ) {
+		requestedParent = p;
+		requestedParentIndex = p.numChildren;
+		
+		if ( vd != null) {
+			if( vd.parent!=null)
+				vd.parent.removeChild( vd );
+			p.addChild(vd);
+		}
+	}
+	
+	public function restart() {
+		start(); 
+	}
+	
+	public function getTime() : Float {
+		return stream.time;
+	}
+	
+	public function getProgress() : Float {
+		if ( stream == null ) return 0.0;
+		return stream.time / durationS;
+	}
+	
 	
 	public static function text(txt:String) : flash.text.TextField {
 		var t = new flash.text.TextField();
 		t.text = txt;
-		var tf = new flash.text.TextFormat("arial",32,0xcdcdcd);
+		var tf = new flash.text.TextFormat("arial",24,0xcdcdcd);
 		t.setTextFormat( t.defaultTextFormat = tf );
 		
 		t.multiline = false;
@@ -126,29 +178,49 @@ class Video extends Agent {
 		return t;
 	}
 	
-	function error() {
+	public function defaultOnError(?msg:String="") {
 		if ( root == null){
 			root = new flash.display.Sprite();
 			flash.Lib.current.addChild(root);
 		}
 			
-		var t = text( "Cannot play stream :" + url );
+		var t = text( (msg==null||msg.length==0 ? "": ("Err:"+msg+"\n") )+ "Cannot play stream :" + url );
 		t.x = rect.x;
 		t.y = rect.y;
 		root.addChild(t);
 	}
 	
+	function error(?msg:String="") {
+		trace("vid:err handler");
+		if( onError.getHandlerCount() == 0 )
+			defaultOnError(msg);
+		else 
+			onError.trigger();
+	}
+	
 	public function start() {
+		if ( disposed ) return;
+		
 		try{
 			for ( s in flash.Lib.current.stage.stage3Ds )
 				s.visible = false;
 			stream.play(url); 
-			if ( vd != null)
-				flash.Lib.current.addChild(vd);
+			if ( vd != null) {
+				if( requestedParent == null)
+					flash.Lib.current.addChild(vd);
+				else 
+					requestedParent.addChildAt( vd,requestedParentIndex );
+			}
+			this.volume = volume;
 		}
 		catch (d:Dynamic ) {
+			trace("err: can' start");
 			error();
 		}
+	}
+	
+	public function pause() {
+		stream.pause();
 	}
 	
 	public function stop() {
@@ -161,23 +233,32 @@ class Video extends Agent {
 		trace("nsh:"+Reflect.fields(event.info));
 		trace("nsh.code:" + (event.info.code) );
 		switch(event.info.code) {
-			default: trace("problem:" + event.info.code);
+			default: 
+				trace("problem:" + event.info.code);
+			case "NetStream.Buffer.Empty":					onFinished.trigger();
 			case "NetConnection.Connect.Success":
-			case "NetStream.Play.StreamNotFound":
-				error();
+			case "NetStream.Play.FileStructureInvalid":		error("Invalid Structure");
+			case "NetStream.Play.NoSupportedTrackFound":	error("Invalid Track Structure");
+			case "NetStream.Play.StreamNotFound":			error();
 		}
 	} 
 	
 	function securityErrorHandler(event) {
         trace("securityErrorHandler: " + event);	
+		error();
 	}
 	
 	function asyncErrorHandler(event){ 
 		// ignore error 
-		trace("aeh:"+event);
+		trace("aeh:" + event);
+		error();
 	}
 	
-	function onMetaData(infoObject) trace("onMetaData fired " + infoObject); 
+	var durationS:Float;
+	function onMetaData(infoObject:Dynamic) {
+		trace("onMetaData fired " + infoObject); 
+		durationS = infoObject.duration;
+	}
 	function onXMPData(infoObject) 	trace("onXMPData Fired" + infoObject); 
 	
 	function stageVideoStateChange(e) 		trace("svsc:"+e);
@@ -197,7 +278,15 @@ class Video extends Agent {
 	}
     function onTextData(){}
 
+	public var disposed = false;
 	public override function dispose() {
+		if (disposed)
+			return;
+		disposed = true;
+		
+		for ( s in flash.Lib.current.stage.stage3Ds )
+			s.visible = true;
+			
 		trace("disposing");
 		super.dispose();
 		
@@ -216,7 +305,11 @@ class Video extends Agent {
 		if ( nc != null) {
 			nc.removeEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-			nc.close();
+			try {
+				nc.close();
+			}catch (d:Dynamic) {
+				trace("close failed " + d);
+			}
 			nc = null;
 		}
 		
@@ -257,6 +350,8 @@ class Video extends Agent {
 			root = null;
 		}
 		trace("disposed");
+		
+		instances--;
 	}
 	
 	public override function update(dt) {
@@ -268,5 +363,14 @@ class Video extends Agent {
 				onFinished.trigger();
 		#end
 		sub.update( dt );
+	}
+	
+	public function set_volume(f:Float) {
+		volume = f;
+		if ( stream != null ) {
+			var sf = new flash.media.SoundTransform(f);
+			stream.soundTransform = sf;
+		}
+		return f;
 	}
 }
