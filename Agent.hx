@@ -47,7 +47,7 @@ class DelayedAgent extends Agent {
 	var cbk : Void -> Void;
 	var list : AgentList;
 	
-	public function new(cbk : Void -> Void, delayMs : Int,list:AgentList) {
+	public function new(cbk : Void -> Void, delayMs : Float,list:AgentList) {
 		super();
 		this.cbk = cbk;
 		this.list = list; 
