@@ -77,7 +77,22 @@ class DelayedAgent extends Agent {
 }
 #if h3d
 class UiAgent extends Agent {
-	var root : h2d.Sprite; //root is disposable
+	
+	public var x(get,set) : Float;
+	public var y(get,set) : Float;
+	
+	function get_x() 	return root.x;
+	function set_x(v) 	return root.x = v;
+	
+	function get_y() 	return root.y;
+	function set_y(v) 	return root.y = v;
+	
+	public var root : h2d.Sprite; //root is disposable
+	
+	public function new (?p) {
+		super();
+		root = new h2d.Sprite(p);
+	}
 	
 	public function resize() {
 		
@@ -156,7 +171,8 @@ class AgentList {
 	inline 
 	function update(dt) 
 		for ( a in repo.backWardIterator() )
-			a.update(dt);
+			if (a != null) 
+				a.update(dt);
 			
 	public var length(get, null):Int; 	function get_length() return repo.length;
 	
