@@ -113,6 +113,11 @@ class Video extends Agent {
 			}
 			g.addEventListener( flash.events.MouseEvent.CLICK, a );
 			flash.Lib.current.addChild( g );
+			onDispose.add( function() {
+				if ( g == null ) return;
+				if(g.parent !=null) flash.Lib.current.removeChild( g );
+				g.removeEventListener( flash.events.MouseEvent.CLICK, a);
+			});
 		}
 		
 		if ( conf.autostart ) start();
@@ -124,7 +129,6 @@ class Video extends Agent {
 		instances++;
 		
 		events();
-		
 	}
 	
 	function events() {
@@ -220,11 +224,11 @@ class Video extends Agent {
 	}
 	
 	public function pause() {
-		stream.pause();
+		if( stream!=null) stream.pause();
 	}
 	
 	public function stop() {
-		stream.pause();
+		if( stream!=null) stream.pause();
 		for ( s in flash.Lib.current.stage.stage3Ds )
 			s.visible = true;
 	}

@@ -23,5 +23,10 @@ class Signal {
 		signalsOnce.remove(f);
 	}
 	
+	public inline function dispose() { 
+		signals = [];
+		signalsOnce = [];
+	}
+	
 	public function getHandlerCount() return signals.length + signalsOnce.length;
 }
