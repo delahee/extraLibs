@@ -108,7 +108,7 @@ class UiAgent extends Agent {
 #if h3d
 class SpriteAgent extends Agent {
 	var root : h2d.Sprite; //root is disposable
-	var visible(get, set):Bool; 
+	public var visible(get, set):Bool; 
 	
 	inline function get_visible():Bool	 	return root.visible;
 	inline function set_visible(v):Bool 	return root.visible = v;

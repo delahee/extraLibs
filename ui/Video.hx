@@ -26,6 +26,7 @@ class Video extends Agent {
 	var sv 		: flash.media.StageVideo = null;
 	var vd 		: flash.media.Video = null;
 	
+	public var onUpdate : Signal = new Signal();
 	public var onFinished : Signal = new Signal();
 	public var onDispose : Signal = new Signal();
 	public var onVideoCanStart : Signal = new Signal();
@@ -104,7 +105,8 @@ class Video extends Agent {
 			gfx.beginFill(0, 0);
 			gfx.drawRect( 0, 0, flash.Lib.current.stage.stageWidth, flash.Lib.current.stage.stageHeight );
 			gfx.endFill;
-			g.buttonMode = g.mouseEnabled = true;
+			g.mouseEnabled = true;
+			hxd.System.setCursor( Hide );
 			function a(e) {
 				flash.Lib.current.removeChild( g );
 				skip();
@@ -114,9 +116,10 @@ class Video extends Agent {
 			g.addEventListener( flash.events.MouseEvent.CLICK, a );
 			flash.Lib.current.addChild( g );
 			onDispose.add( function() {
-				if ( g == null ) return;
-				if(g.parent !=null) flash.Lib.current.removeChild( g );
+				if( g == null ) return;
+				if( g.parent !=null ) flash.Lib.current.removeChild( g );
 				g.removeEventListener( flash.events.MouseEvent.CLICK, a);
+				hxd.System.setCursor( Default );
 			});
 		}
 		
@@ -360,6 +363,8 @@ class Video extends Agent {
 	
 	public override function update(dt) {
 		super.update(dt);
+		
+		onUpdate.trigger();
 		#if h3d
 		var k = App.me.k;
 		if( conf.enableSkip)
