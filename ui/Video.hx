@@ -49,7 +49,7 @@ class Video extends Agent {
 		super();
 		this.conf = Reflect.copy(conf);
 		rect = conf.rect.clone();
-		trace("streaming " + url);
+		//trace("streaming " + url);
 		this.url = url;
 		nc = new NetConnection(); 
 		nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
@@ -198,7 +198,7 @@ class Video extends Agent {
 	}
 	
 	function error(?msg:String="") {
-		trace("vid:err handler");
+		//trace("vid:err handler");
 		if( onError.getHandlerCount() == 0 )
 			defaultOnError(msg);
 		else 
@@ -221,7 +221,7 @@ class Video extends Agent {
 			this.volume = volume;
 		}
 		catch (d:Dynamic ) {
-			trace("err: can' start");
+			//trace("err: can' start");
 			error();
 		}
 	}
@@ -251,7 +251,7 @@ class Video extends Agent {
 	} 
 	
 	function securityErrorHandler(event) {
-        trace("securityErrorHandler: " + event);	
+        //trace("securityErrorHandler: " + event);	
 		error();
 	}
 	
@@ -263,21 +263,29 @@ class Video extends Agent {
 	
 	var durationS:Float;
 	function onMetaData(infoObject:Dynamic) {
-		trace("onMetaData fired " + infoObject); 
+		//trace("onMetaData fired " + infoObject); 
 		durationS = infoObject.duration;
 	}
-	function onXMPData(infoObject) 	trace("onXMPData Fired" + infoObject); 
+	function onXMPData(infoObject) 	{
+		//trace("onXMPData Fired" + infoObject); 
+	}
 	
-	function stageVideoStateChange(e) 		trace("svsc:"+e);
-	function stageVideoStateChangeUnav(e) 	trace("svscu:"+e);
-	function onCuePoint() 					trace("onCuePoint fired "); 
+	function stageVideoStateChange(e) 		{
+		//trace("svsc:"+e);
+	}
+	function stageVideoStateChangeUnav(e) 	{
+		//trace("svscu:"+e);
+	}
+	function onCuePoint() 					{
+		//trace("onCuePoint fired "); 
+	}
 	
     function onImageData() {}
 	
 	public function skip() 					onFinished.trigger();
     
     function onPlayStatus(event:Dynamic) {
-		trace("ops : " + event);
+		//trace("ops : " + event);
 		switch( event.code ) {
 			case "NetStream.Play.Complete":
 				onFinished.trigger();
@@ -294,7 +302,7 @@ class Video extends Agent {
 		for ( s in flash.Lib.current.stage.stage3Ds )
 			s.visible = true;
 			
-		trace("disposing");
+		//trace("disposing");
 		super.dispose();
 		
 		if ( stream != null) {
@@ -348,7 +356,7 @@ class Video extends Agent {
 			catch (d:Dynamic) {
 				trace("netstream cancel failed "+d);
 			}
-			trace("vd netstream detached");
+			//trace("vd netstream detached");
 			vd = null;
 		}
 		
@@ -356,7 +364,7 @@ class Video extends Agent {
 			if ( root.parent != null) root.parent.removeChild(root);
 			root = null;
 		}
-		trace("disposed");
+		//trace("disposed");
 		
 		instances--;
 	}
