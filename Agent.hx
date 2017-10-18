@@ -204,6 +204,7 @@ class AgentList {
 	}
 }
 
+//make something after spin frames
 class SpinAgent extends AnonAgent {
 	var spinMax = 0;
 	var spin = 0;
@@ -222,6 +223,8 @@ class SpinAgent extends AnonAgent {
 	}
 }
 
+
+//make something after spin_ms ms
 class TimeSpinAgent extends AnonAgent {
 	public var spinMax = 0.0;
 	public var spin = 0.0;
@@ -245,6 +248,33 @@ class TimeSpinAgent extends AnonAgent {
 		if ( spin >= spinMax) {
 			super.update(dt);
 			spin = 0.0;
+		}
+	}
+	
+}
+
+//make something after spin_ms ms
+class TimerRatioAgent extends AnonAgent {
+	public var duration = 0.0;
+	public var current = 0.0;
+	
+	public var onEnd:Void->Void;
+	public var onUpdate:Float->Void;
+	
+	public function new( duration:Float,cbk:Float->Void,?dl:AgentList) {
+		super(cbk);
+		this.duration = duration;
+		current = 0.0;
+		this.onUpdate = cbk;
+		if(dl!=null) dl.add( this );
+	}
+	
+	override function update(dt:Float) {
+		if ( current > duration ) current = duration;
+		onUpdate(current / duration);
+		current += dt;
+		if ( current > duration ){
+			if(onEnd!=null) onEnd();
 		}
 	}
 	

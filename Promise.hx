@@ -1,4 +1,5 @@
 
+@:native('˹_')
 class Promise {
 	var thens:Array<Dynamic->Dynamic> = [];
 	var rejects:Array<Dynamic->Dynamic> = [];
@@ -9,10 +10,20 @@ class Promise {
 	public var curSuccess : Dynamic = null;
 	public var curFailure : Dynamic = null;
 	
-	public inline function then(f:Dynamic->Dynamic, ?r:Dynamic->Dynamic){
+	public function then(f:Dynamic->Dynamic, ?r:Dynamic->Dynamic){
+		var f = f;
+		var r = r;
 		if ( _succeeded ) { 
-			if ( f != null ) 
-				curFailure = f( curFailure );
+			if ( f != null ) {
+				try{
+					curSuccess = f( curSuccess );
+				}catch (d:Dynamic){
+					_succeeded = false;
+					_failed = true;
+					curFailure = d;
+					curFailure = f( curFailure );
+				}
+			}
 		}
 		else if ( _failed ){
 			if ( r != null ) 
@@ -24,10 +35,9 @@ class Promise {
 		}
 	}
 	
-	public inline function reject(f:Dynamic->Dynamic){
-		if (_failed){
+	public function reject(f:Dynamic->Dynamic){
+		if (_failed)
 			curFailure = f( curFailure );
-		}
  		rejects.push( f );
 	}
 	
@@ -37,25 +47,36 @@ class Promise {
 		done(d);
 	}
 	
-	public function done(?d : Dynamic ) {
+	public function done(?d : Dynamic ) : Promise {
+		_failed = false;
 		_succeeded = true;
 		curSuccess = d;
 		for (s in thens) {
-			curSuccess = s(curSuccess);
+			try{
+				curSuccess = s(curSuccess);
+			}
+			catch ( d : Dynamic ){
+				_failed = true;
+				_succeeded = false;
+				curFailure = d;
+				for (s in rejects)
+					curFailure = s(curFailure);
+			}
 		}
 		thens = [];
 		rejects = [];
-		return curSuccess;
+		return this;
 	}
 	
-	public function failed( ?d : Dynamic ) {
+	public function failed( ?d : Dynamic ) : Promise {
+		_succeeded = false;
 		_failed = true;
 		curFailure = d;
 		for (s in rejects)
 			curFailure = s(curFailure);
 		thens = [];
 		rejects = [];
-		return curFailure;
+		return this;
 	}
 	
 	public function chain( p : Promise ) : Promise{
