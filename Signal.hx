@@ -29,4 +29,16 @@ class Signal {
 	}
 	
 	public function getHandlerCount() return signals.length + signalsOnce.length;
+	
+	public inline function clone(){
+		var ns = new Signal();
+		for ( s in signals) ns.add(s);
+		for ( s in signalsOnce) ns.addOnce(s);
+		return ns;
+	}
+	
+	public inline function inject(e:Signal){
+		for ( s in e.signals) add(s);
+		for ( s in e.signalsOnce) addOnce(s);
+	}
 }
