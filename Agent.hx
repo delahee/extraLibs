@@ -7,11 +7,13 @@ class Agent {
 	static var _UID : Int = 0;
 	public var _id:Int = _UID++;
 	
-	public var name:String;
+	public var name(default,set):String;
 	
 	public function new() 				{}
 	public function update(dt:Float) 	{}
 	public function dispose()			{}
+	
+			function set_name(str)		{ this.name = str; return str; }//allow override
 }
 
 class VizAgent extends Agent{
