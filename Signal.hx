@@ -28,6 +28,11 @@ class Signal {
 		signalsOnce = [];
 	}
 	
+	public inline function reset() { 
+		signals = [];
+		signalsOnce = [];
+	}
+	
 	public function getHandlerCount() return signals.length + signalsOnce.length;
 	
 	public inline function clone(){

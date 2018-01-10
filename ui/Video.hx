@@ -369,8 +369,11 @@ class Video extends Agent {
 		instances--;
 	}
 	
+	public var time = 0.0;
 	public override function update(dt) {
 		super.update(dt);
+		
+		time += dt;
 		
 		onUpdate.trigger();
 		#if h3d

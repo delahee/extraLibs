@@ -282,3 +282,21 @@ class TimerRatioAgent extends AnonAgent {
 	
 }
 
+class OnceAgent extends AnonAgent {
+	
+	public var onEnd:Void->Void;
+	public var onUpdate:Float->Void;
+	
+	public function new( cbk:Float->Void,?dl:AgentList) {
+		super(cbk);
+		this.onUpdate = cbk;
+		if(dl!=null) dl.add( this );
+	}
+	
+	override function update(dt:Float) {
+		onUpdate(0.5);
+		if(onEnd!=null) onEnd();
+	}
+	
+}
+
