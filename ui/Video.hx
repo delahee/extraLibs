@@ -28,6 +28,7 @@ class Video extends Agent {
 	
 	public var onUpdate : Signal = new Signal();
 	public var onFinished : Signal = new Signal();
+	public var onSkip : Signal = new Signal();
 	public var onDispose : Signal = new Signal();
 	public var onVideoCanStart : Signal = new Signal();
 	public var onError : Signal = new Signal();
@@ -154,9 +155,6 @@ class Video extends Agent {
 		}
 	}
 	
-	public function restart() {
-		start(); 
-	}
 	
 	public function getTime() : Float {
 		return stream.time;
@@ -203,6 +201,15 @@ class Video extends Agent {
 			defaultOnError(msg);
 		else 
 			onError.trigger();
+	}
+	
+	public function restart() {
+		try{
+			stream.seek(0); 
+		} catch (d:Dynamic ) {
+			//trace("err: can' start");
+			error();
+		}
 	}
 	
 	public function start() {
@@ -282,7 +289,13 @@ class Video extends Agent {
 	
     function onImageData() {}
 	
-	public function skip() 					onFinished.trigger();
+	public function skip() 					{
+		if ( onSkip.getHandlerCount() == 0)
+			onFinished.trigger();
+		else {
+			onSkip.trigger();
+		}
+	}
     
     function onPlayStatus(event:Dynamic) {
 		//trace("ops : " + event);

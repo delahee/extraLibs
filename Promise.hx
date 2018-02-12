@@ -35,6 +35,22 @@ class Promise {
 		}
 	}
 	
+	public function after( f :Dynamic -> Dynamic ){
+		then(f, f);
+	}
+	
+	public static function getFailure( d : Dynamic ) : Promise{
+		var p = new Promise();
+		p.failed(d);
+		return p;
+	}
+	
+	public static function getSuccess( d : Dynamic ) : Promise{
+		var p = new Promise();
+		p.done(d);
+		return p;
+	}
+	
 	public function reject(f:Dynamic->Dynamic){
 		if (_failed)
 			curFailure = f( curFailure );
@@ -68,6 +84,9 @@ class Promise {
 		return this;
 	}
 	
+	/**
+	 * declare failure of this one
+	 */
 	public function failed( ?d : Dynamic ) : Promise {
 		_succeeded = false;
 		_failed = true;
