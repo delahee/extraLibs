@@ -4,8 +4,10 @@ class Signal {
 	var signalsOnce:Array<Void->Void> = [];
 	
 	public var isTriggerring = false; 
+	
 	public inline function add(f:Void->Void) 		signals.push( f );
 	public inline function addOnce(f:Void->Void) 	signalsOnce.push( f );
+	
 	public inline function new() {}
 	public function trigger() {
 		isTriggerring = true;

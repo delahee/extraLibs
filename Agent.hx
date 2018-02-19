@@ -204,6 +204,23 @@ class AgentList {
 	function clear() {
 		repo.hardReset();
 	}
+	
+	public 
+	function findByName(name:String) {
+		for ( a in repo.backWardIterator() )
+			if ( a.name == name )
+				return a;
+		return null;
+	}
+	
+	public 
+	inline 
+	function removeByName(name:String) {
+		var elem = findByName(name);
+		if ( elem == null ) return;
+		
+		repo.remove(elem);
+	}
 }
 
 //make something after spin frames

@@ -10,7 +10,7 @@ class Promise {
 	public var curSuccess : Dynamic = null;
 	public var curFailure : Dynamic = null;
 	
-	public function then(f:Dynamic->Dynamic, ?r:Dynamic->Dynamic){
+	public function then(f:Dynamic->Dynamic, ?r:Dynamic->Dynamic) : Promise {
 		var f = f;
 		var r = r;
 		if ( _succeeded ) { 
@@ -33,10 +33,11 @@ class Promise {
 			thens.push( f );
 			if ( r != null) rejects.push(r);
 		}
+		return this;
 	}
 	
-	public function after( f :Dynamic -> Dynamic ){
-		then(f, f);
+	public function after( f : Dynamic -> Dynamic ) : Promise {
+		return then(f, f);
 	}
 	
 	public static function getFailure( d : Dynamic ) : Promise{
@@ -51,10 +52,11 @@ class Promise {
 		return p;
 	}
 	
-	public function reject(f:Dynamic->Dynamic){
+	public function reject(f:Dynamic->Dynamic) : Promise {
 		if (_failed)
 			curFailure = f( curFailure );
  		rejects.push( f );
+		return this;
 	}
 	
 	public inline function new() {}
