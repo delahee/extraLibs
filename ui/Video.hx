@@ -358,7 +358,7 @@ class Video extends Agent {
 			catch (d:Dynamic) {
 				trace("netstream cancel failed "+d);
 			}
-			trace("sv netstream detached");
+			//trace("sv netstream detached");
 			sv = null;
 		}
 		
@@ -377,7 +377,10 @@ class Video extends Agent {
 			if ( root.parent != null) root.parent.removeChild(root);
 			root = null;
 		}
+		
+		//#if debug
 		//trace("disposed");
+		//#end
 		
 		instances--;
 	}
