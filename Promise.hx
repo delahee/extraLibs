@@ -62,7 +62,7 @@ class Promise {
 	public inline function new() {}
 	
 	public inline function resolve(?d : Dynamic ) {
-		done(d);
+		return done(d);
 	}
 	
 	public function done(?d : Dynamic ) : Promise {

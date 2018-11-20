@@ -7,7 +7,7 @@ class Agent {
 	static var _UID : Int = 0;
 	public var _id:Int = _UID++;
 	
-	public var name(default,set):String;
+	public var 	name(default, set):String;
 	
 	public function new() 				{}
 	public function update(dt:Float) 	{}
@@ -17,7 +17,7 @@ class Agent {
 }
 
 class VizAgent extends Agent{
-	public var visible(default,set)	:	Bool;
+	public var visible(default,set)	:	Bool = true;
 	
 	public function new() 				{ super();  }
 	function set_visible(v) {
@@ -47,7 +47,7 @@ class AnonAgent extends Agent {
 class DelayedAgent extends Agent {
 	public var dur : Float = 0.0;
 	var cbk : Void -> Void;
-	var list : AgentList;
+	var list : AgentList;	
 	
 	public function new(cbk : Void -> Void, delayMs : Float,list:AgentList) {
 		super();
