@@ -8,10 +8,14 @@ class Agent {
 	public var _id:Int = _UID++;
 	
 	public var 	name(default, set):String;
+	public var 	parent:AgentList;
 	
-	public function new() 				{}
+	public function new(?list:AgentList) { parent = list; }
 	public function update(dt:Float) 	{}
-	public function dispose()			{}
+	public function dispose()			{
+		if ( parent != null ) 
+			parent.remove(this);
+	}
 	
 			function set_name(str)		{ this.name = str; return str; }//allow override
 }
@@ -19,7 +23,7 @@ class Agent {
 class VizAgent extends Agent{
 	public var visible(default,set)	:	Bool = true;
 	
-	public function new() 				{ super();  }
+	public function new(?list:AgentList) 				{ super(list);  }
 	function set_visible(v) {
 		return visible = v;
 	}
@@ -28,8 +32,8 @@ class VizAgent extends Agent{
 class AnonAgent extends Agent {
 	var cbk : Float -> Void;
 	
-	public function new(cbk) {
-		super();
+	public function new(cbk,?list:AgentList) {
+		super(list);
 		this.cbk = cbk;
 	}
 	
@@ -50,9 +54,8 @@ class DelayedAgent extends Agent {
 	var list : AgentList;	
 	
 	public function new(cbk : Void -> Void, delayMs : Float,list:AgentList) {
-		super();
+		super(list);
 		this.cbk = cbk;
-		this.list = list; 
 		
 		this.dur = delayMs;
 		list.add( this );
@@ -91,8 +94,8 @@ class UiAgent extends Agent {
 	
 	public var root : h2d.Sprite; //root is disposable
 	
-	public function new (?p) {
-		super();
+	public function new (?p,?list:AgentList) {
+		super(list);
 		root = new h2d.Sprite(p);
 	}
 	
@@ -121,8 +124,8 @@ class SpriteAgent extends Agent {
 	
 	public inline function getRoot() return root;
 	
-	public function new( ?p:h2d.Sprite ) {
-		super();
+	public function new( ?p:h2d.Sprite,?list:AgentList ) {
+		super(list);
 		root = new h2d.Sprite( p );
 	}
 	
