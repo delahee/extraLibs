@@ -10,7 +10,7 @@ class Agent {
 	public var 	name(default, set):String;
 	public var 	parent:AgentList;
 	
-	public function new(?list:AgentList) { parent = list; }
+	public function new(?list:AgentList) { parent = list; if ( parent != null ) parent.add(this); }
 	public function update(dt:Float) 	{}
 	public function dispose()			{
 		if ( parent != null ) 
@@ -51,25 +51,19 @@ class AnonAgent extends Agent {
 class DelayedAgent extends Agent {
 	public var dur : Float = 0.0;
 	var cbk : Void -> Void;
-	var list : AgentList;	
 	
-	public function new(cbk : Void -> Void, delayMs : Float,list:AgentList) {
+	public function new(cbk : Void -> Void, delayMs : Float,?list:AgentList) {
 		super(list);
 		this.cbk = cbk;
-		
 		this.dur = delayMs;
-		list.add( this );
-		//trace("added " + id+" ->"+delayMs);
 	}
 	
 	public override function update(dt:Float) {
 		super.update(dt);
 		if ( dur <= 0 && cbk != null) {
-			var	l = list;
 			cbk();
-			l.remove( this );
-			//trace("removed " + id + " ->" + dur);
 			cbk = null;
+			dispose();
 		}
 		dur -= dt * 1000.0;
 	}
@@ -77,7 +71,6 @@ class DelayedAgent extends Agent {
 	public override function dispose(){
 		super.dispose();
 		cbk = null;
-		list = null;
 	}
 }
 #if h3d
