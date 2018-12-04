@@ -8,12 +8,22 @@ class Agent {
 	public var _id:Int = _UID++;
 	
 	public var 	name(default, set):String;
+	public var  list : AgentList;
 	
-	public function new() 				{}
+	public function new(?list) 				{ 
+		if ( list != null ){
+			this.list = list;
+			list.add(this);
+		}
+	}
+	
 	public function update(dt:Float) 	{}
-	public function dispose()			{}
+	public function dispose()			{
+		if (list != null)
+			list.remove(this);
+	}
 	
-			function set_name(str)		{ this.name = str; return str; }//allow override
+	function set_name(str)		{ this.name = str; return str; }//allow override
 }
 
 class VizAgent extends Agent{
@@ -47,16 +57,14 @@ class AnonAgent extends Agent {
 class DelayedAgent extends Agent {
 	public var dur : Float = 0.0;
 	var cbk : Void -> Void;
-	var list : AgentList;	
 	
 	public function new(cbk : Void -> Void, delayMs : Float,list:AgentList) {
-		super();
+		super(list);
 		this.cbk = cbk;
 		this.list = list; 
 		
 		this.dur = delayMs;
 		list.add( this );
-		//trace("added " + id+" ->"+delayMs);
 	}
 	
 	public override function update(dt:Float) {
@@ -65,7 +73,6 @@ class DelayedAgent extends Agent {
 			var	l = list;
 			cbk();
 			l.remove( this );
-			//trace("removed " + id + " ->" + dur);
 			cbk = null;
 		}
 		dur -= dt * 1000.0;
