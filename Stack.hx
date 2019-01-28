@@ -167,6 +167,12 @@ class Stack<T>  {
 		return v;
 	}
 	
+	public inline function indexOf(v:T) : Int {
+		var idx = arr.indexOf(v);
+		if ( idx >= pos ) idx = -1;
+		return idx;
+	}
+	
 	public function scramble() {
 		var rd = Std.random;
 		for(x in 0...(length + rd( length )) ){

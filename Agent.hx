@@ -196,6 +196,12 @@ class AgentList {
 	}
 	
 	public 
+	inline 
+	function has(v:Agent){
+		return repo.indexOf(v) >= 0;
+	}
+	
+	public 
 	inline
 	function remove(a:Agent) {
 		return repo.remove(a);
