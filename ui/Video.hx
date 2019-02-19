@@ -244,12 +244,14 @@ class Video extends Agent {
 	}
 	
 	function netStatusHandler(event:NetStatusEvent)	{ 
-		trace("nsh:"+Reflect.fields(event.info));
-		trace("nsh.code:" + (event.info.code) );
+		//trace("nsh:"+Reflect.fields(event.info));
+		//trace("nsh.code:" + (event.info.code) );
 		switch(event.info.code) {
 			default: 
 				trace("problem:" + event.info.code);
 			case "NetStream.Buffer.Empty":					onFinished.trigger();
+			case "NetStream.Buffer.Full":					//good problem!
+			case "NetStream.Buffer.Start":					//good problem!
 			case "NetConnection.Connect.Success":
 			case "NetStream.Play.FileStructureInvalid":		error("Invalid Structure");
 			case "NetStream.Play.NoSupportedTrackFound":	error("Invalid Track Structure");
