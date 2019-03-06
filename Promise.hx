@@ -1,5 +1,5 @@
 
-@:native('˹_')
+#if flash @:native('˹_') #end
 class Promise {
 	var thens:Array<Dynamic->Dynamic> = [];
 	var rejects:Array<Dynamic->Dynamic> = [];

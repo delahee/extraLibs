@@ -1,8 +1,12 @@
 package ui;
 
+#if flash
+import flash.events.StageVideoEvent;
+#end
+
 import flash.events.NetStatusEvent;
 import flash.events.AsyncErrorEvent;
-import flash.events.StageVideoEvent;
+
 import flash.events.SecurityErrorEvent;
 import flash.net.NetConnection;
 import flash.net.NetStream;
@@ -18,20 +22,43 @@ typedef VideoConf = {
 	?bufferTimeS:Float,
 	?noBuffer:Bool
 };
-class Video extends Agent {
 
-	public var url 	: String;
-	var nc 		: flash.net.NetConnection = null;
-	var stream 	: flash.net.NetStream = null;
-	var sv 		: flash.media.StageVideo = null;
-	var vd 		: flash.media.Video = null;
-	
+#if !flash
+class Video extends Agent {
 	public var onUpdate : Signal = new Signal();
 	public var onFinished : Signal = new Signal();
 	public var onSkip : Signal = new Signal();
 	public var onDispose : Signal = new Signal();
 	public var onVideoCanStart : Signal = new Signal();
 	public var onError : Signal = new Signal();
+	
+	public function new(url:String, conf:VideoConf) {
+		super();
+	}
+	
+	public function skip() 					{
+		if ( onSkip.getHandlerCount() == 0)
+			onFinished.trigger();
+		else {
+			onSkip.trigger();
+		}
+	}
+}
+#else 
+class Video extends Agent {
+
+	public var onUpdate : Signal = new Signal();
+	public var onFinished : Signal = new Signal();
+	public var onSkip : Signal = new Signal();
+	public var onDispose : Signal = new Signal();
+	public var onVideoCanStart : Signal = new Signal();
+	public var onError : Signal = new Signal();
+	
+	public var url 	: String;
+	var nc 		: flash.net.NetConnection = null;
+	var stream 	: flash.net.NetStream = null;
+	var sv 		: flash.media.StageVideo = null;
+	var vd 		: flash.media.Video = null;
 	
 	public var conf : VideoConf;
 	public var volume(default,set):Float = 1.0;
@@ -380,10 +407,6 @@ class Video extends Agent {
 			root = null;
 		}
 		
-		//#if debug
-		//trace("disposed");
-		//#end
-		
 		instances--;
 	}
 	
@@ -412,3 +435,4 @@ class Video extends Agent {
 		return f;
 	}
 }
+#end
