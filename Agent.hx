@@ -55,6 +55,8 @@ class AnonAgent extends Agent {
 }
 
 class DelayedAgent extends Agent {
+	static var UID = 0;
+	var id = 0;
 	public var dur : Float = 0.0;
 	var cbk : Void -> Void;
 	
@@ -62,6 +64,7 @@ class DelayedAgent extends Agent {
 		super(list);
 		this.cbk = cbk;
 		this.dur = delayMs;
+		id = UID++;
 	}
 	
 	public override function update(dt:Float) {
