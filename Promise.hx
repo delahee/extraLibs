@@ -52,6 +52,7 @@ class Promise {
 		return p;
 	}
 	
+	//what to do in case of failure
 	public function reject(f:Dynamic->Dynamic) : Promise {
 		if (_failed)
 			curFailure = f( curFailure );

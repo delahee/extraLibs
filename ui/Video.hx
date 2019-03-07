@@ -37,6 +37,9 @@ class Video extends Agent {
 	}
 	
 	public function skip() 					{
+		#if debug
+		trace("video skipped");
+		#end
 		if ( onSkip.getHandlerCount() == 0)
 			onFinished.trigger();
 		else {
