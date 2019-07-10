@@ -283,9 +283,8 @@ class OnceAgent extends AnonAgent {
 	public var onUpdate:Float->Void;
 	
 	public function new( cbk:Float->Void,?dl:AgentList) {
-		super(cbk);
+		super(cbk,dl);
 		this.onUpdate = cbk;
-		if(dl!=null) dl.add( this );
 	}
 	
 	override function update(dt:Float) {
