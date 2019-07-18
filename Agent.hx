@@ -135,18 +135,22 @@ class SpriteAgent extends Agent {
 }
 #end
 
-class AgentList {
+class AgentList extends Agent{
 	var repo : Stack<Agent>;
 	
-	public inline function new() 
+	public inline function new(?al) {
+		super(al);
 		repo = new Stack<Agent>();
+	}
 	
 	public
-	inline 
-	function update(dt) 
+	override  
+	function update(dt) {
+		super.update(dt);
 		for ( a in repo.backWardIterator() )
 			if (a != null) 
 				a.update(dt);
+	}
 			
 	public var length(get, null):Int; 	function get_length() return repo.length;
 	
@@ -154,8 +158,9 @@ class AgentList {
 	public inline function add(p) 		repo.push(p);
 	
 	public 
-	inline 
+	override 
 	function dispose() {
+		super.dispose();
 		for ( a in repo.backWardIterator() )
 			a.dispose();
 		repo.hardReset();
