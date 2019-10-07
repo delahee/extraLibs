@@ -4,6 +4,12 @@ package ui;
 import flash.events.StageVideoEvent;
 #end
 
+#if switch
+import lime.console.nswitch.NNVideo;
+import lime.console.nswitch.Movie;
+import lime.console.nswitch.Movie.Buffer;
+#end
+
 import flash.events.NetStatusEvent;
 import flash.events.AsyncErrorEvent;
 
@@ -20,10 +26,117 @@ typedef VideoConf = {
 	enableSkip:Bool,
 	?forceSoftware:Bool,
 	?bufferTimeS:Float,
-	?noBuffer:Bool
+	?noBuffer:Bool,
+	#if switch
+	root:h2d.Sprite,
+	#end
 };
 
-#if !flash
+#if switch
+class Video extends Agent {
+	public var onUpdate : Signal = new Signal();
+	public var onFinished : Signal = new Signal();
+	public var onSkip : Signal = new Signal();
+	public var onDispose : Signal = new Signal();
+	public var onError : Signal = new Signal();
+	
+	public var vfm = new sw.VideoFrameManager();
+	public var conf : VideoConf;
+	public var time:Float = 0.0;
+	
+	public function new(url:String, conf:VideoConf) {
+		super();
+		
+		this.conf = conf;
+		lime.console.nswitch.NNVideo.onDrawHandler = forDrawHandler;
+		lime.console.nswitch.NNVideo.onStopHandler = videoStopHandler;
+		lime.console.nswitch.NNVideo.onErrorHandler = videoErrorHandler;
+		var res : Int  = lime.console.nswitch.NNVideo.playVideo(["app_path","rom://"+url, "-me", "mp4", "-dm", "1","-core","4"]);
+		
+		trace("am here!");
+		var yufSurface = vfm.createSurface( conf.root );
+		
+		yufSurface.x = conf.rect.left;
+		yufSurface.y = conf.rect.top;
+		
+		yufSurface.width = ( conf.rect.width );
+		yufSurface.height = ( conf.rect.height );
+	}
+	
+	public override function dispose(){
+		super.dispose();
+		disposeFromMainThread();
+	}
+	
+	public function forDrawHandler(
+		buf : cpp.Pointer<Buffer>, 
+		width:Int,
+		height:Int,
+		yOffset:Int,
+		yStride:Int,
+		uvOffset:Int,
+		colorSpace:Int,
+		presTime:haxe.Int64){
+			
+		if ( vfm == null)
+			return;
+			vfm.queue( buf, width, height, yOffset, yStride, uvOffset, colorSpace, presTime );
+	}
+	
+	public function videoErrorHandler(){
+		trace("video errored");
+		Lib.timerDelay( onError.trigger, 1);
+	}
+	
+	public function videoStopHandler(){
+		trace("video stopped, running stop on ");
+		Lib.timerDelay( onFinished.trigger, 1);
+	}
+	
+	@:extern inline
+	public function dtrace(msg:String,?pos:haxe.PosInfos){
+		#if debug
+		trace(msg,pos);
+		#end
+	}
+	
+	public function disposeFromMainThread(){
+		dtrace("hiding surface");
+		vfm.yuvSurface.visible = false;
+		
+		dtrace("disposing engine");
+		lime.console.nswitch.NNVideo.dispose();
+		
+		dtrace("disposing yufsurface");
+		vfm.dispose();
+		
+		dtrace("finished");
+		vfm = null;
+	}
+	
+	public override function update(dt){
+		super.update(dt);
+		vfm.update();
+		
+		if ( conf.enableSkip ){
+			var rmp = App.me.g.rmp;
+			if ( time >= 0.2 && rmp.onAnyPress(App.me.k)) {
+				skip();
+			}
+		}
+		
+		time+= dt;
+	}
+	
+	public function skip() {
+		if( conf.enableSkip ){
+			lime.console.nswitch.NNVideo.doStop();
+		}
+		onSkip.trigger();
+		//will fire appropriate signals
+	}
+}
+#elseif !flash //skip it
 class Video extends Agent {
 	public var onUpdate : Signal = new Signal();
 	public var onFinished : Signal = new Signal();
@@ -34,9 +147,10 @@ class Video extends Agent {
 	
 	public function new(url:String, conf:VideoConf) {
 		super();
+		
 	}
 	
-	public function skip() 					{
+	public function skip() {
 		#if debug
 		trace("video skipped");
 		#end
