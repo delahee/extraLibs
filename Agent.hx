@@ -54,8 +54,8 @@ class DelayedAgent extends Agent {
 	static var UID = 0;
 	var id = 0;
 	public var dur : Float = 0.0;
-	var cbk : Void -> Void;
-	
+	var cbk : Void -> Void = null;
+	var callbackCalled = false;
 	public function new(cbk : Void -> Void, delayMs : Float,?list:AgentList) {
 		super(list);
 		this.cbk = cbk;
@@ -68,6 +68,7 @@ class DelayedAgent extends Agent {
 		if ( dur <= 0 && cbk != null) {
 			cbk();
 			cbk = null;
+			callbackCalled = true;
 			dispose();
 		}
 		dur -= dt * 1000.0;
@@ -76,6 +77,9 @@ class DelayedAgent extends Agent {
 	public override function dispose(){
 		super.dispose();
 		cbk = null;
+		#if debug
+		if ( !callbackCalled && name != null) trace("callback wasn't called... " + name);
+		#end
 	}
 }
 #if h3d
