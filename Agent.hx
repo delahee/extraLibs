@@ -15,8 +15,10 @@ class Agent {
 	
 	public function update(dt:Float) 	{}
 	public function dispose()			{
-		if (list != null)
+		if (list != null){
 			list.remove(this);
+			list = null;
+		}
 	}
 	
 	function set_name(str)		{ this.name = str; return str; }//allow override

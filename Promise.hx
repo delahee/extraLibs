@@ -122,4 +122,27 @@ class Promise {
 		
 		p.failed("err");
 	}
+	
+	public static function all( a:Array < Promise >  ) : Promise{
+		var res = new Promise();
+		var nb = 0;
+		var values = [];
+		function afterAll(val){
+			nb++;
+			values.push(val);
+			if ( nb == a.length ){
+				res.resolve(values);
+			}
+			return val;
+		}
+		
+		function afterFail(err){
+			res.failed( err );
+			return err;
+		}
+		
+		for ( p in a ){
+			p.chain( afterAll, afterFail );
+		}
+	}
 }
