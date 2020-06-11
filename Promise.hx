@@ -75,6 +75,9 @@ class Promise {
 				curSuccess = s(curSuccess);
 			}
 			catch ( d : Dynamic ){
+				#if debug
+				trace("exception popped in then execution");
+				#end
 				_failed = true;
 				_succeeded = false;
 				curFailure = d;
@@ -142,7 +145,8 @@ class Promise {
 		}
 		
 		for ( p in a ){
-			p.chain( afterAll, afterFail );
+			p.then( afterAll, afterFail );
 		}
+		return res;
 	}
 }

@@ -300,7 +300,9 @@ class OnceAgent extends AnonAgent {
 	
 	override function update(dt:Float) {
 		onUpdate(0.5);
-		if(onEnd!=null) onEnd();
+		if (onEnd != null) onEnd();
+		if ( list != null )
+			list.remove( this );
 	}
 	
 }
