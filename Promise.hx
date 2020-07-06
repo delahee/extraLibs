@@ -36,6 +36,10 @@ class Promise {
 		return this;
 	}
 	
+	public function isSettled(){
+		return _succeeded || _failed;
+	}
+	
 	public function after( f : Dynamic -> Dynamic ) : Promise {
 		return then(f, f);
 	}
@@ -53,7 +57,29 @@ class Promise {
 	}
 	
 	//what to do in case of failure
-	public function reject(f:Dynamic->Dynamic) : Promise {
+	//public function reject(f:Dynamic->Dynamic) : Promise {
+		//if ( !Reflect.isFunction(f)){
+			//#if debug
+			//trace("ALARM reject process is not a function...");
+			//#end
+			//return this;
+		//}
+		//if (_failed)
+			//curFailure = f( curFailure );
+ 		//rejects.push( f );
+		//return this;
+	//}
+	public function reject(e:Dynamic) : Promise {
+		return failed(e);
+	}
+	
+	public function catchError(f:Dynamic->Dynamic) : Promise {
+		if ( !Reflect.isFunction(f)){
+			#if debug
+			trace("ALARM catchError process is not a function...");
+			#end
+			return this;
+		}
 		if (_failed)
 			curFailure = f( curFailure );
  		rejects.push( f );
@@ -102,6 +128,16 @@ class Promise {
 		thens = [];
 		rejects = [];
 		return this;
+	}
+	
+	public function finally( cbk : Void->Void){
+		then(function(res){
+			cbk();
+			return res;
+		}, function(err){
+			cbk();
+			return err;
+		});
 	}
 	
 	public function chain( p : Promise ) : Promise{

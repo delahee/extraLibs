@@ -60,13 +60,13 @@ class Video extends Agent {
 		lime.console.nswitch.NNVideo.onStopHandler = videoStopHandler;
 		lime.console.nswitch.NNVideo.onErrorHandler = videoErrorHandler;
 		
-		trace("opening video:" + url);
+		//trace("opening video:" + url);
 		
 		//var genWind : lime.ui.Window = lime.app.Application.current.window;
 		//var sdlWin : cpp.Pointer<SDLWindow> = untyped __cpp__('(SDL_Window*){0}.sdlWindow', genWind);
 		var res : Int  = lime.console.nswitch.NNVideo.playVideo(["app_path","rom://"+url, "-me", "mp4", "-dm", "1","-core","4"]);
 		
-		trace("[Video]creating surf");
+		//trace("[Video]creating surf");
 		var yufSurface = vfm.createSurface( conf.root );
 		
 		yufSurface.x = conf.rect.left;
@@ -75,11 +75,11 @@ class Video extends Agent {
 		yufSurface.width = ( conf.rect.width );
 		yufSurface.height = ( conf.rect.height );
 		*/
-		trace("x:" + conf.rect.left);
-		trace("y:" + conf.rect.top);
+		//trace("x:" + conf.rect.left);
+		//trace("y:" + conf.rect.top);
 		
-		trace("w:"+ conf.rect.width );
-		trace("h:" + conf.rect.height );
+		//trace("w:"+ conf.rect.width );
+		//trace("h:" + conf.rect.height );
 		
 		yufSurface.targetSize = new h2d.Vector(conf.rect.width,conf.rect.height);
 		yufSurface.setColorSpace(CS_YCbCr601_ER);
@@ -118,7 +118,7 @@ class Video extends Agent {
 	}
 	
 	public function videoStopHandler(){
-		trace("video stopped, running stop on ");
+		//dtrace("video stopped, running stop on ");
 		Lib.timerDelay( onFinished.trigger, 1);
 	}
 	
@@ -130,16 +130,16 @@ class Video extends Agent {
 	}
 	
 	function disposeFromMainThread(){
-		dtrace("hiding surface");
+		//dtrace("hiding surface");
 		if(vfm!=null) vfm.yuvSurface.visible = false;
 		
-		dtrace("disposing engine");
+		//dtrace("disposing engine");
 		lime.console.nswitch.NNVideo.dispose();
 		
-		dtrace("disposing yufsurface");
+		//dtrace("disposing yufsurface");
 		if(vfm!=null)vfm.dispose();
 		
-		dtrace("finished");
+		//dtrace("finished");
 		vfm = null;
 	}
 	
