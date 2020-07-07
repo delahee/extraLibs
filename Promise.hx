@@ -21,7 +21,7 @@ class Promise {
 					_succeeded = false;
 					_failed = true;
 					curFailure = d;
-					curFailure = f( curFailure );
+					curFailure = r( curFailure );
 				}
 			}
 		}
@@ -56,19 +56,6 @@ class Promise {
 		return p;
 	}
 	
-	//what to do in case of failure
-	//public function reject(f:Dynamic->Dynamic) : Promise {
-		//if ( !Reflect.isFunction(f)){
-			//#if debug
-			//trace("ALARM reject process is not a function...");
-			//#end
-			//return this;
-		//}
-		//if (_failed)
-			//curFailure = f( curFailure );
- 		//rejects.push( f );
-		//return this;
-	//}
 	public function reject(e:Dynamic) : Promise {
 		return failed(e);
 	}
@@ -140,6 +127,7 @@ class Promise {
 		});
 	}
 	
+	//semantics a bit unclear...could consider changing that
 	public function chain( p : Promise ) : Promise{
 		p.then( done, failed );
 		return this;
